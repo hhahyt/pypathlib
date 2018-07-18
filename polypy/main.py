@@ -2,17 +2,75 @@
 #
 import numpy
 
+from .helpers import shoelace
 
-def plot(poly):
-    import matplotlib.pyplot as plt
-    x = numpy.concatenate([poly[:, 0], [poly[0, 0]]])
-    y = numpy.concatenate([poly[:, 1], [poly[0, 1]]])
-    plt.plot(x, y, "-")
+
+class Polygon(object):
+    def __init__(self, points):
+        self.points = numpy.array(points)
+
+        self.edges = numpy.roll(points, -1, axis=0) - points
+        self.e_dot_e = numpy.einsum("ij,ij->i", self.edges, self.edges)
+
+        self.area = 0.5 * shoelace(self.points)
+        if self.area < 0:
+            self.area = -self.area
+            self.points = self.points[:, ::-1]
+        return
+
+    def squared_distance(self, x):
+        """Get the squared distance of all points x to the polygon `poly`.
+        """
+        # Find closest point for each side segment
+        # <https://stackoverflow.com/q/51397389/353337>
+        diff = x.T[:, None, :] - self.points[None, :, :]
+        diff_dot_edge = numpy.einsum("ijk,jk->ij", diff, self.edges)
+        t = diff_dot_edge / self.e_dot_e
+
+        # The squared distance from the point x to the line defined by the points x0, x1
+        # is
+        #
+        # (<x1-x0, x1-x0> <x-x0, x-x0> - <x-x0, x1-x0>**2) / <x1-x0, x1-x0>
+        #
+        diff_dot_diff = numpy.einsum("ijk,ijk->ij", diff, diff)
+        dist2_lines = (
+            self.e_dot_e * diff_dot_diff - diff_dot_edge ** 2
+        ) / self.e_dot_e
+
+        # Get the squared distance to the polygon. By default the distance to the line,
+        # unless t < 0 (then the squared distance to x0), unless t > 1 (then the squared
+        # distance to x1).
+        dist2_polygon = dist2_lines.copy()
+        dist2_polygon[t < 0.0] = diff_dot_diff[t < 0.0]
+        dist2_polygon[t > 1.0] = numpy.roll(diff_dot_diff, -1, axis=1)[t > 1.0]
+        dist2_polygon = numpy.min(dist2_polygon, axis=1)
+
+        # Get the closest point on the polygon
+
+        print(dist2_polygon.shape)
+
+        exit(1)
+        return
+
+    def plot(self):
+        import matplotlib.pyplot as plt
+        x = numpy.concatenate([self.points[:, 0], [self.points[0, 0]]])
+        y = numpy.concatenate([self.points[:, 1], [self.points[0, 1]]])
+        plt.plot(x, y, "-")
+        return
+
+    def show(self, *args, **kwargs):
+        import matplotlib.pyplot as plt
+        self.plot(*args, **kwargs)
+        plt.show()
+        return
+
+
+def plot(points):
+    Polygon(points).plot()
     return
 
 
-def show(*args, **kwargs):
-    import matplotlib.pyplot as plt
-    plot(*args, **kwargs)
-    plt.show()
+def show(points):
+    Polygon(points).show()
     return
