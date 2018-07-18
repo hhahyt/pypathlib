@@ -17,6 +17,8 @@ class Polygon(object):
         self.positive_orientation = self.area > 0
         if self.area < 0:
             self.area = -self.area
+
+        self._is_convex_node = None
         return
 
     def _all_distances(self, x):
@@ -84,15 +86,18 @@ class Polygon(object):
         closest_points = (pts0.T * (1 - t0)).T + (pts1.T * t0).T
         return closest_points
 
+    @property
     def is_convex_node(self):
-        tri = numpy.array(
-            [
-                numpy.roll(self.points, +1, axis=0),
-                self.points,
-                numpy.roll(self.points, -1, axis=0),
-            ]
-        )
-        return numpy.equal(shoelace(tri) > 0, self.positive_orientation)
+        if self._is_convex_node is None:
+            tri = numpy.array(
+                [
+                    numpy.roll(self.points, +1, axis=0),
+                    self.points,
+                    numpy.roll(self.points, -1, axis=0),
+                ]
+            )
+            self._is_convex_node = numpy.equal(shoelace(tri) > 0, self.positive_orientation)
+        return self._is_convex_node
 
     def plot(self):
         import matplotlib.pyplot as plt

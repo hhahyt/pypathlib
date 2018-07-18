@@ -16,7 +16,7 @@ def test_convex():
     ref = 1.045
     assert abs(poly.area - ref) < 1.0e-12 * ref
     assert poly.positive_orientation
-    assert all(poly.is_convex_node())
+    assert all(poly.is_convex_node)
     return
 
 
@@ -26,7 +26,7 @@ def test_orientation():
     ref = 1.045
     assert abs(poly.area - ref) < 1.0e-12 * ref
     assert not poly.positive_orientation
-    assert all(poly.is_convex_node())
+    assert all(poly.is_convex_node)
     return
 
 
@@ -36,7 +36,7 @@ def test_concave():
     ref = 0.965
     assert abs(poly.area - ref) < 1.0e-12 * ref
     assert poly.positive_orientation
-    assert numpy.array_equal(poly.is_convex_node(), [True, True, False, True, True])
+    assert numpy.array_equal(poly.is_convex_node, [True, True, False, True, True])
     return
 
 
@@ -46,7 +46,7 @@ def test_concave_counterclock():
     ref = 0.965
     assert abs(poly.area - ref) < 1.0e-12 * ref
     assert not poly.positive_orientation
-    assert numpy.array_equal(poly.is_convex_node(), [True, True, False, True, True])
+    assert numpy.array_equal(poly.is_convex_node, [True, True, False, True, True])
     return
 
 
