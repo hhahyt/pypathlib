@@ -13,9 +13,16 @@ class Polygon(object):
         self.e_dot_e = numpy.einsum("ij,ij->i", self.edges, self.edges)
 
         self.area = 0.5 * shoelace(self.points)
+        self.positive_orientation = self.area > 0
         if self.area < 0:
             self.area = -self.area
-            self.points = self.points[:, ::-1]
+
+        tri = numpy.array([
+            numpy.roll(self.points, +1, axis=0),
+            self.points,
+            numpy.roll(self.points, -1, axis=0),
+        ])
+        self.is_convex_node = numpy.equal(shoelace(tri) > 0, self.positive_orientation)
         return
 
     def squared_distance(self, x):

@@ -15,7 +15,7 @@ def test_show():
     return
 
 
-def test_area():
+def test_convex():
     poly = polypy.Polygon([
         [0.0, 0.0],
         [1.0, 0.0],
@@ -25,8 +25,57 @@ def test_area():
 
     ref = 1.045
     assert abs(poly.area - ref) < 1.0e-12 * ref
+    assert poly.positive_orientation
+    assert all(poly.is_convex_node)
+    return
+
+
+def test_orientation():
+    poly = polypy.Polygon([
+        [0.1, 1.0],
+        [1.1, 1.1],
+        [1.0, 0.0],
+        [0.0, 0.0],
+    ])
+
+    ref = 1.045
+    assert abs(poly.area - ref) < 1.0e-12 * ref
+    assert not poly.positive_orientation
+    assert all(poly.is_convex_node)
+    return
+
+
+def test_concave():
+    poly = polypy.Polygon([
+        [0.0, 0.0],
+        [1.0, 0.0],
+        [0.9, 0.5],
+        [1.1, 1.1],
+        [0.1, 1.0],
+    ])
+
+    ref = 0.965
+    assert abs(poly.area - ref) < 1.0e-12 * ref
+    assert poly.positive_orientation
+    assert numpy.array_equal(poly.is_convex_node, [True, True, False, True, True])
+    return
+
+
+def test_concave_counterclock():
+    poly = polypy.Polygon([
+        [0.1, 1.0],
+        [1.1, 1.1],
+        [0.9, 0.5],
+        [1.0, 0.0],
+        [0.0, 0.0],
+    ])
+
+    ref = 0.965
+    assert abs(poly.area - ref) < 1.0e-12 * ref
+    assert not poly.positive_orientation
+    assert numpy.array_equal(poly.is_convex_node, [True, True, False, True, True])
     return
 
 
 if __name__ == "__main__":
-    test_area()
+    test_concave_counterclock()
