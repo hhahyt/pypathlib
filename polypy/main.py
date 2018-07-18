@@ -8,6 +8,7 @@ from .helpers import shoelace
 class Polygon(object):
     def __init__(self, points):
         self.points = numpy.array(points)
+        assert self.points.shape[1] == 2
 
         self.edges = numpy.roll(points, -1, axis=0) - points
         self.e_dot_e = numpy.einsum("ij,ij->i", self.edges, self.edges)
@@ -28,6 +29,9 @@ class Polygon(object):
     def squared_distance(self, x):
         """Get the squared distance of all points x to the polygon `poly`.
         """
+        x = numpy.array(x).T
+        assert x.shape[0] == 2
+
         # Find closest point for each side segment
         # <https://stackoverflow.com/q/51397389/353337>
         diff = x.T[:, None, :] - self.points[None, :, :]
@@ -44,20 +48,15 @@ class Polygon(object):
             self.e_dot_e * diff_dot_diff - diff_dot_edge ** 2
         ) / self.e_dot_e
 
-        # Get the squared distance to the polygon. By default the distance to the line,
-        # unless t < 0 (then the squared distance to x0), unless t > 1 (then the squared
-        # distance to x1).
+        # Get the squared distance to the polygon. By default equals the distance to the
+        # line, unless t < 0 (then the squared distance to x0), unless t > 1 (then the
+        # squared distance to x1).
         dist2_polygon = dist2_lines.copy()
         dist2_polygon[t < 0.0] = diff_dot_diff[t < 0.0]
         dist2_polygon[t > 1.0] = numpy.roll(diff_dot_diff, -1, axis=1)[t > 1.0]
         dist2_polygon = numpy.min(dist2_polygon, axis=1)
 
-        # Get the closest point on the polygon
-
-        print(dist2_polygon.shape)
-
-        exit(1)
-        return
+        return dist2_polygon
 
     def plot(self):
         import matplotlib.pyplot as plt
