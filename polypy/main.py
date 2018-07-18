@@ -116,7 +116,9 @@ class Polygon(object):
                     numpy.roll(self.points, -1, axis=0),
                 ]
             )
-            self._is_convex_node = numpy.equal(shoelace(tri) > 0, self.positive_orientation)
+            self._is_convex_node = numpy.equal(
+                shoelace(tri) > 0, self.positive_orientation
+            )
         return self._is_convex_node
 
     def plot(self):

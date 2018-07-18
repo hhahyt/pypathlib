@@ -8,11 +8,6 @@
 
 Some description.
 
-Run
-```
-find . -type f -print0 | xargs -0 sed -i 's/polypy/your-project-name/g'
-```
-to customize.
 
 ### Installation
 
