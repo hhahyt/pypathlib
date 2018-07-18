@@ -43,67 +43,55 @@ class Polygon(object):
         #
         # (<x1-x0, x1-x0> <x-x0, x-x0> - <x-x0, x1-x0>**2) / <x1-x0, x1-x0>
         #
-        diff_dot_diff = numpy.einsum("ijk,ijk->ij", diff, diff)
-        dist2_lines = (self.e_dot_e * diff_dot_diff - diff_dot_edge ** 2) / self.e_dot_e
+        dist2_points = numpy.einsum("ijk,ijk->ij", diff, diff)
+        dist2_sides = (self.e_dot_e * dist2_points - diff_dot_edge ** 2) / self.e_dot_e
+
+        # Index of the closest points and sides
+        ip0 = numpy.argmin(dist2_points, axis=1)
+        is0 = numpy.argmin(dist2_sides, axis=1)
+
+        print(dist2_points)
+        print(ip0)
+        print()
+        print(dist2_sides)
+        print(is0)
 
         # Get the squared distance to the polygon. By default equals the distance to the
         # line, unless t < 0 (then the squared distance to x0), unless t > 1 (then the
         # squared distance to x1).
-        dist2_points = diff_dot_diff
-        dist2_polygon = dist2_lines.copy()
+        dist2_polygon = dist2_sides.copy()
         dist2_polygon[t < 0.0] = dist2_points[t < 0.0]
         dist2_polygon[t > 1.0] = numpy.roll(dist2_points, -1, axis=1)[t > 1.0]
 
-        return t, diff_dot_diff, dist2_lines, dist2_polygon
+        r = numpy.arange(x.shape[1])
+        is_closer_to_point = dist2_points[r, ip0] < dist2_sides[r, is0]
+
+        idx = numpy.empty(is_closer_to_point.shape, dtype=int)
+        idx[is_closer_to_point] = ip0[is_closer_to_point]
+        idx[~is_closer_to_point] = is0[~is_closer_to_point]
+
+        return t, dist2_points, dist2_sides, dist2_polygon, is_closer_to_point, idx
 
     def squared_distance(self, x):
         """Get the squared distance of all points x to the polygon `poly`.
         """
         x = numpy.array(x)
         assert x.shape[1] == 2
-        _, _, _, dist2_polygon = self._all_distances(x)
+        _, _, _, dist2_polygon, _, _ = self._all_distances(x)
         return numpy.min(dist2_polygon, axis=1)
 
     def is_inside(self, x):
         x = numpy.array(x)
         assert x.shape[1] == 2
-        t, dist2_points, dist2_lines, dist2_polygon = self._all_distances(x)
-
-        is_close_to_node0 = t < 0.0
-        is_close_to_node1 = t > 1.0
-        is_close_to_side = ~(is_close_to_node0 | is_close_to_node1)
+        _, _, _, dist2_polygon, _, _ = self._all_distances(x)
 
         idx = numpy.argmin(dist2_polygon, axis=1)
 
-        is_inside = numpy.ones(x.shape[0], dtype=bool)
-
-        # if the left node is closest to the point and it is a convex node, the point is
-        # outside
-        r = numpy.arange(idx.shape[0])
-        node0_out = numpy.logical_and(
-            is_close_to_node0[r, idx], self.is_convex_node[idx]
-        )
-        is_inside[node0_out] = False
-        # Same for outs on the right side
-        node1_out = numpy.logical_and(
-            is_close_to_node1[r, idx], numpy.roll(self.is_convex_node, -1)[idx]
-        )
-        is_inside[node1_out] = False
-
-        # if the point is closest to a side, check the orientation
-        ic = is_close_to_side[r, idx]
-        tri = numpy.array(
-            [
-                x[ic],
-                self.points[idx[ic]],
-                self.points[(idx[ic] + 1) % self.points.shape[0]],
-            ]
-        )
+        points = self.points
+        next_points = numpy.roll(self.points, -1, axis=0)
+        tri = numpy.array([x, points[idx], next_points[idx]])
         eps = 1.0e-15
-        is_outside = (shoelace(tri) > -eps) != self.positive_orientation
-
-        ic0 = numpy.where(ic)[0]
-        is_inside[ic0[is_outside]] = False
+        is_inside = (shoelace(tri) > -eps) == self.positive_orientation
 
         return is_inside
 
@@ -112,7 +100,7 @@ class Polygon(object):
         """
         x = numpy.array(x)
         assert x.shape[1] == 2
-        t, dist2_points, dist2_lines, dist2_polygon = self._all_distances(x)
+        t, dist2_points, dist2_sides, dist2_polygon, _, _ = self._all_distances(x)
 
         is_close_to_node0 = t < 0.0
         is_close_to_node1 = t > 1.0

@@ -93,4 +93,4 @@ def test_closest_points():
 
 
 if __name__ == "__main__":
-    test_closest_points()
+    test_inside()
