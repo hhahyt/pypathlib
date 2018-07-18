@@ -46,60 +46,48 @@ class Polygon(object):
         dist2_points = numpy.einsum("ijk,ijk->ij", diff, diff)
         dist2_sides = (self.e_dot_e * dist2_points - diff_dot_edge ** 2) / self.e_dot_e
 
-        # Index of the closest points and sides
-        ip0 = numpy.argmin(dist2_points, axis=1)
-        is0 = numpy.argmin(dist2_sides, axis=1)
-
         # Get the squared distance to the polygon. By default equals the distance to the
         # line, unless t < 0 (then the squared distance to x0), unless t > 1 (then the
         # squared distance to x1).
-        dist2_polygon = dist2_sides.copy()
-        dist2_polygon[t < 0.0] = dist2_points[t < 0.0]
-        dist2_polygon[t > 1.0] = numpy.roll(dist2_points, -1, axis=1)[t > 1.0]
+        t0 = t < 0.0
+        t1 = t > 1.0
+        dist2_sides[t0] = dist2_points[t0]
+        dist2_sides[t1] = numpy.roll(dist2_points, -1, axis=1)[t1]
+        #
+        t[t0] = 0.0
+        t[t1] = 1.0
 
-        r = numpy.arange(x.shape[1])
-        is_closer_to_point = dist2_points[r, ip0] < dist2_sides[r, is0]
-
-        idx = numpy.empty(is_closer_to_point.shape, dtype=int)
-        idx[is_closer_to_point] = ip0[is_closer_to_point]
-        idx[~is_closer_to_point] = is0[~is_closer_to_point]
-
-        return t, dist2_polygon, is_closer_to_point, idx
+        return t, dist2_sides
 
     def squared_distance(self, x):
         """Get the squared distance of all points x to the polygon `poly`.
         """
         x = numpy.array(x)
         assert x.shape[1] == 2
-        _, dist2_polygon, _, _ = self._all_distances(x)
+        _, dist2_polygon = self._all_distances(x)
         return numpy.min(dist2_polygon, axis=1)
 
     def is_inside(self, x):
         x = numpy.array(x)
         assert x.shape[1] == 2
-        _, dist2_polygon, _, _ = self._all_distances(x)
+        _, dist2_polygon = self._all_distances(x)
 
         idx = numpy.argmin(dist2_polygon, axis=1)
 
-        points = self.points
-        next_points = numpy.roll(self.points, -1, axis=0)
-        tri = numpy.array([x, points[idx], next_points[idx]])
+        pts0 = self.points
+        pts1 = numpy.roll(self.points, -1, axis=0)
+        tri = numpy.array([x, pts0[idx], pts1[idx]])
         eps = 1.0e-15
-        is_inside = (shoelace(tri) > -eps) == self.positive_orientation
-
-        return is_inside
+        return (shoelace(tri) > -eps) == self.positive_orientation
 
     def closest_points(self, x):
         """Get the closest points on the polygon.
         """
         x = numpy.array(x)
         assert x.shape[1] == 2
-        t, dist2_polygon, _, _ = self._all_distances(x)
+        t, dist2_polygon = self._all_distances(x)
 
         idx = numpy.argmin(dist2_polygon, axis=1)
-
-        t[t < 0.0] = 0.0
-        t[t > 1.0] = 1.0
 
         pts0 = self.points[idx]
         pts1 = numpy.roll(self.points, -1, axis=0)[idx]
