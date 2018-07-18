@@ -46,38 +46,33 @@ class Polygon(object):
         diff_dot_diff = numpy.einsum("ijk,ijk->ij", diff, diff)
         dist2_lines = (self.e_dot_e * diff_dot_diff - diff_dot_edge ** 2) / self.e_dot_e
 
-        return t, diff_dot_diff, dist2_lines
+        # Get the squared distance to the polygon. By default equals the distance to the
+        # line, unless t < 0 (then the squared distance to x0), unless t > 1 (then the
+        # squared distance to x1).
+        dist2_points = diff_dot_diff
+        dist2_polygon = dist2_lines.copy()
+        dist2_polygon[t < 0.0] = dist2_points[t < 0.0]
+        dist2_polygon[t > 1.0] = numpy.roll(dist2_points, -1, axis=1)[t > 1.0]
+
+        return t, diff_dot_diff, dist2_lines, dist2_polygon
 
     def squared_distance(self, x):
         """Get the squared distance of all points x to the polygon `poly`.
         """
+        x = numpy.array(x)
         assert x.shape[1] == 2
-        t, dist2_points, dist2_lines = self._all_distances(x)
-
-        # Get the squared distance to the polygon. By default equals the distance to the
-        # line, unless t < 0 (then the squared distance to x0), unless t > 1 (then the
-        # squared distance to x1).
-        dist2_polygon = dist2_lines.copy()
-        dist2_polygon[t < 0.0] = dist2_points[t < 0.0]
-        dist2_polygon[t > 1.0] = numpy.roll(dist2_points, -1, axis=1)[t > 1.0]
-        dist2_polygon = numpy.min(dist2_polygon, axis=1)
-
-        return dist2_polygon
+        _, _, _, dist2_polygon = self._all_distances(x)
+        return numpy.min(dist2_polygon, axis=1)
 
     def is_inside(self, x):
         x = numpy.array(x)
         assert x.shape[1] == 2
-        t, dist2_points, dist2_lines = self._all_distances(x)
+        t, dist2_points, dist2_lines, dist2_polygon = self._all_distances(x)
 
         is_close_to_node0 = t < 0.0
         is_close_to_node1 = t > 1.0
         is_close_to_side = ~(is_close_to_node0 | is_close_to_node1)
 
-        dist2_polygon = dist2_lines.copy()
-        dist2_polygon[is_close_to_node0] = dist2_points[is_close_to_node0]
-        dist2_polygon[is_close_to_node1] = numpy.roll(dist2_points, -1, axis=1)[
-            is_close_to_node1
-        ]
         idx = numpy.argmin(dist2_polygon, axis=1)
 
         is_inside = numpy.ones(x.shape[0], dtype=bool)
@@ -117,17 +112,12 @@ class Polygon(object):
         """
         x = numpy.array(x)
         assert x.shape[1] == 2
-        t, dist2_points, dist2_lines = self._all_distances(x)
+        t, dist2_points, dist2_lines, dist2_polygon = self._all_distances(x)
 
         is_close_to_node0 = t < 0.0
         is_close_to_node1 = t > 1.0
         is_close_to_side = ~(is_close_to_node0 | is_close_to_node1)
 
-        dist2_polygon = dist2_lines.copy()
-        dist2_polygon[is_close_to_node0] = dist2_points[is_close_to_node0]
-        dist2_polygon[is_close_to_node1] = numpy.roll(dist2_points, -1, axis=1)[
-            is_close_to_node1
-        ]
         idx = numpy.argmin(dist2_polygon, axis=1)
 
         r = numpy.arange(idx.shape[0])
