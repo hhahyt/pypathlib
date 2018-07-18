@@ -12,10 +12,10 @@ jobs:
       - checkout
       - run: pip3 install .[all]
       # format and lint
-      - run: LC_ALL=C.UTF-8 black --check setup.py foobar/ test/*.py
-      - run: flake8 setup.py foobar/ test/*.py
+      - run: LC_ALL=C.UTF-8 black --check setup.py polypy/ test/*.py
+      - run: flake8 setup.py polypy/ test/*.py
       # The tests
-      - run: cd test/ && MPLBACKEND=Agg pytest --cov foobar
+      - run: cd test/ && MPLBACKEND=Agg pytest --cov polypy
       # submit to codecov
       - run: apt-get install -y curl
       - run: bash <(curl -s https://codecov.io/bash)
