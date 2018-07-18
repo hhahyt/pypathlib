@@ -50,12 +50,6 @@ class Polygon(object):
         ip0 = numpy.argmin(dist2_points, axis=1)
         is0 = numpy.argmin(dist2_sides, axis=1)
 
-        print(dist2_points)
-        print(ip0)
-        print()
-        print(dist2_sides)
-        print(is0)
-
         # Get the squared distance to the polygon. By default equals the distance to the
         # line, unless t < 0 (then the squared distance to x0), unless t > 1 (then the
         # squared distance to x1).
@@ -70,20 +64,20 @@ class Polygon(object):
         idx[is_closer_to_point] = ip0[is_closer_to_point]
         idx[~is_closer_to_point] = is0[~is_closer_to_point]
 
-        return t, dist2_points, dist2_sides, dist2_polygon, is_closer_to_point, idx
+        return t, dist2_polygon, is_closer_to_point, idx
 
     def squared_distance(self, x):
         """Get the squared distance of all points x to the polygon `poly`.
         """
         x = numpy.array(x)
         assert x.shape[1] == 2
-        _, _, _, dist2_polygon, _, _ = self._all_distances(x)
+        _, dist2_polygon, _, _ = self._all_distances(x)
         return numpy.min(dist2_polygon, axis=1)
 
     def is_inside(self, x):
         x = numpy.array(x)
         assert x.shape[1] == 2
-        _, _, _, dist2_polygon, _, _ = self._all_distances(x)
+        _, dist2_polygon, _, _ = self._all_distances(x)
 
         idx = numpy.argmin(dist2_polygon, axis=1)
 
@@ -100,29 +94,18 @@ class Polygon(object):
         """
         x = numpy.array(x)
         assert x.shape[1] == 2
-        t, dist2_points, dist2_sides, dist2_polygon, _, _ = self._all_distances(x)
-
-        is_close_to_node0 = t < 0.0
-        is_close_to_node1 = t > 1.0
-        is_close_to_side = ~(is_close_to_node0 | is_close_to_node1)
+        t, dist2_polygon, _, _ = self._all_distances(x)
 
         idx = numpy.argmin(dist2_polygon, axis=1)
 
-        r = numpy.arange(idx.shape[0])
-        ic0 = is_close_to_node0[r, idx]
-        ic1 = is_close_to_node1[r, idx]
-        is0 = is_close_to_side[r, idx]
+        t[t < 0.0] = 0.0
+        t[t > 1.0] = 1.0
 
-        closest_points = numpy.empty(x.shape)
-        closest_points[ic0] = self.points[idx[ic0]]
-        closest_points[ic1] = numpy.roll(self.points, -1, axis=0)[idx[ic1]]
-
-        pts0 = self.points[idx[is0]]
-        t0 = t[is0, idx[is0]]
-        pts = (pts0.T * (1 - t0)).T + (
-            numpy.roll(self.points, -1, axis=0)[idx[is0]].T * t0
-        ).T
-        closest_points[is0] = pts
+        pts0 = self.points[idx]
+        pts1 = numpy.roll(self.points, -1, axis=0)[idx]
+        r = numpy.arange(t.shape[0])
+        t0 = t[r, idx]
+        closest_points = (pts0.T * (1 - t0)).T + (pts1.T * t0).T
         return closest_points
 
     def plot(self):
