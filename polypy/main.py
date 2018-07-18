@@ -17,15 +17,6 @@ class Polygon(object):
         self.positive_orientation = self.area > 0
         if self.area < 0:
             self.area = -self.area
-
-        tri = numpy.array(
-            [
-                numpy.roll(self.points, +1, axis=0),
-                self.points,
-                numpy.roll(self.points, -1, axis=0),
-            ]
-        )
-        self.is_convex_node = numpy.equal(shoelace(tri) > 0, self.positive_orientation)
         return
 
     def _all_distances(self, x):
@@ -51,28 +42,27 @@ class Polygon(object):
         # squared distance to x1).
         t0 = t < 0.0
         t1 = t > 1.0
-        dist2_sides[t0] = dist2_points[t0]
-        dist2_sides[t1] = numpy.roll(dist2_points, -1, axis=1)[t1]
-        #
         t[t0] = 0.0
         t[t1] = 1.0
+        dist2_sides[t0] = dist2_points[t0]
+        dist2_sides[t1] = numpy.roll(dist2_points, -1, axis=1)[t1]
 
-        return t, dist2_sides
+        idx = numpy.argmin(dist2_sides, axis=1)
+
+        return t, dist2_sides, idx
 
     def squared_distance(self, x):
         """Get the squared distance of all points x to the polygon `poly`.
         """
         x = numpy.array(x)
         assert x.shape[1] == 2
-        _, dist2_polygon = self._all_distances(x)
-        return numpy.min(dist2_polygon, axis=1)
+        _, dist2_polygon, idx = self._all_distances(x)
+        return dist2_polygon[numpy.arange(idx.shape[0]), idx]
 
     def is_inside(self, x):
         x = numpy.array(x)
         assert x.shape[1] == 2
-        _, dist2_polygon = self._all_distances(x)
-
-        idx = numpy.argmin(dist2_polygon, axis=1)
+        _, dist2_polygon, idx = self._all_distances(x)
 
         pts0 = self.points
         pts1 = numpy.roll(self.points, -1, axis=0)
@@ -85,9 +75,7 @@ class Polygon(object):
         """
         x = numpy.array(x)
         assert x.shape[1] == 2
-        t, dist2_polygon = self._all_distances(x)
-
-        idx = numpy.argmin(dist2_polygon, axis=1)
+        t, dist2_polygon, idx = self._all_distances(x)
 
         pts0 = self.points[idx]
         pts1 = numpy.roll(self.points, -1, axis=0)[idx]
@@ -95,6 +83,16 @@ class Polygon(object):
         t0 = t[r, idx]
         closest_points = (pts0.T * (1 - t0)).T + (pts1.T * t0).T
         return closest_points
+
+    def is_convex_node(self):
+        tri = numpy.array(
+            [
+                numpy.roll(self.points, +1, axis=0),
+                self.points,
+                numpy.roll(self.points, -1, axis=0),
+            ]
+        )
+        return numpy.equal(shoelace(tri) > 0, self.positive_orientation)
 
     def plot(self):
         import matplotlib.pyplot as plt
