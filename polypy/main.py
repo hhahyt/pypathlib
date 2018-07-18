@@ -61,16 +61,36 @@ class Polygon(object):
         _, dist2_polygon, idx = self._all_distances(x)
         return dist2_polygon[numpy.arange(idx.shape[0]), idx]
 
-    def is_inside(self, x):
-        x = numpy.array(x)
-        assert x.shape[1] == 2
-        _, dist2_polygon, idx = self._all_distances(x)
-
+    def _is_inside(self, x, idx):
         pts0 = self.points
         pts1 = numpy.roll(self.points, -1, axis=0)
         tri = numpy.array([x, pts0[idx], pts1[idx]])
         eps = 1.0e-15
         return (shoelace(tri) > -eps) == self.positive_orientation
+
+    def is_inside(self, x):
+        x = numpy.array(x)
+        assert x.shape[1] == 2
+        _, _, idx = self._all_distances(x)
+        return self._is_inside(x, idx)
+
+    def signed_distance(self, x):
+        """Negative inside the polgon.
+        """
+        x = numpy.array(x)
+        assert x.shape[1] == 2
+        _, dist2_polygon, idx = self._all_distances(x)
+        dist = numpy.sqrt(dist2_polygon[numpy.arange(idx.shape[0]), idx])
+
+        # compute sign
+        pts0 = self.points
+        pts1 = numpy.roll(self.points, -1, axis=0)
+        tri = numpy.array([x, pts0[idx], pts1[idx]])
+        eps = 1.0e-15
+        is_inside = (shoelace(tri) > -eps) == self.positive_orientation
+
+        dist[is_inside] *= -1
+        return dist
 
     def closest_points(self, x):
         """Get the closest points on the polygon.
