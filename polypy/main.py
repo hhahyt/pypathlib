@@ -97,11 +97,13 @@ class Polygon(object):
 
         # if the point is closest to a side, check the orientation
         ic = is_close_to_side[r, idx]
-        tri = numpy.array([
-            x[ic],
-            self.points[idx[ic]],
-            self.points[(idx[ic] + 1) % self.points.shape[0]]
-        ])
+        tri = numpy.array(
+            [
+                x[ic],
+                self.points[idx[ic]],
+                self.points[(idx[ic] + 1) % self.points.shape[0]],
+            ]
+        )
         eps = 1.0e-15
         is_outside = (shoelace(tri) > -eps) != self.positive_orientation
 
@@ -109,6 +111,41 @@ class Polygon(object):
         is_inside[ic0[is_outside]] = False
 
         return is_inside
+
+    def closest_points(self, x):
+        """Get the closest points on the polygon.
+        """
+        x = numpy.array(x)
+        assert x.shape[1] == 2
+        t, dist2_points, dist2_lines = self._all_distances(x)
+
+        is_close_to_node0 = t < 0.0
+        is_close_to_node1 = t > 1.0
+        is_close_to_side = ~(is_close_to_node0 | is_close_to_node1)
+
+        dist2_polygon = dist2_lines.copy()
+        dist2_polygon[is_close_to_node0] = dist2_points[is_close_to_node0]
+        dist2_polygon[is_close_to_node1] = numpy.roll(dist2_points, -1, axis=1)[
+            is_close_to_node1
+        ]
+        idx = numpy.argmin(dist2_polygon, axis=1)
+
+        r = numpy.arange(idx.shape[0])
+        ic0 = is_close_to_node0[r, idx]
+        ic1 = is_close_to_node1[r, idx]
+        is0 = is_close_to_side[r, idx]
+
+        closest_points = numpy.empty(x.shape)
+        closest_points[ic0] = self.points[idx[ic0]]
+        closest_points[ic1] = numpy.roll(self.points, -1, axis=0)[idx[ic1]]
+
+        pts0 = self.points[idx[is0]]
+        t0 = t[is0, idx[is0]]
+        pts = (pts0.T * (1 - t0)).T + (
+            numpy.roll(self.points, -1, axis=0)[idx[is0]].T * t0
+        ).T
+        closest_points[is0] = pts
+        return closest_points
 
     def plot(self):
         import matplotlib.pyplot as plt

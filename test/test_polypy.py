@@ -71,5 +71,26 @@ def test_inside():
     return
 
 
+def test_closest_points():
+    poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
+
+    closest_points = poly.closest_points(
+        [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
+    )
+
+    ref = numpy.array(
+        [
+            [0.2, 0.0],
+            [0.9, 0.5],
+            [9.0384615384615385e-01, 5.1923076923076927e-01],
+            [0.0, 1.0],
+            [0.0, 1.0],
+            [1.0, 1.0],
+        ]
+    )
+    assert numpy.all(numpy.abs(closest_points - ref) < 1.0e-12)
+    return
+
+
 if __name__ == "__main__":
-    test_inside()
+    test_closest_points()
