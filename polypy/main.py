@@ -100,8 +100,8 @@ class Polygon(object):
 
         return contains_points
 
-    def contains_points(self, x, eps=1.0e-15):
-        return self.signed_squared_distance(x) < eps
+    def contains_points(self, x, tol=1.0e-15):
+        return self.signed_squared_distance(x) < tol
 
     def signed_squared_distance(self, x):
         """Negative inside the polgon.
