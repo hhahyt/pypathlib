@@ -22,12 +22,12 @@ class Polygon(object):
         return
 
     def _all_distances(self, x):
-        x = numpy.array(x).T
-        assert x.shape[0] == 2
+        x = numpy.array(x)
+        assert x.shape[1] == 2
 
         # Find closest point for each side segment
         # <https://stackoverflow.com/q/51397389/353337>
-        diff = x.T[:, None, :] - self.points[None, :, :]
+        diff = x[:, None, :] - self.points[None, :, :]
         diff_dot_edge = numpy.einsum("ijk,jk->ij", diff, self.edges)
         t = diff_dot_edge / self.e_dot_e
 
@@ -51,6 +51,7 @@ class Polygon(object):
         dist2_sides[t1] = numpy.roll(dist2_points, -1, axis=1)[t1]
 
         idx = numpy.argmin(dist2_sides, axis=1)
+        dist2_sides = dist2_sides[numpy.arange(idx.shape[0]), idx]
 
         return t, dist2_sides, idx
 
@@ -59,8 +60,8 @@ class Polygon(object):
         """
         x = numpy.array(x)
         assert x.shape[1] == 2
-        _, dist2_polygon, idx = self._all_distances(x)
-        return dist2_polygon[numpy.arange(idx.shape[0]), idx]
+        _, dist2_sides, _ = self._all_distances(x)
+        return dist2_sides
 
     def _is_inside(self, t, x, idx):
         r = numpy.arange(idx.shape[0])
@@ -105,26 +106,24 @@ class Polygon(object):
         """
         x = numpy.array(x)
         assert x.shape[1] == 2
-        t, dist2_sides, idx = self._all_distances(x)
-        r = numpy.arange(idx.shape[0])
+        t, dist2, idx = self._all_distances(x)
 
         # Due to round-off error, the squared distances will sometimes be negative in
         # the order of machine precision. This gives errors when computing the root.
         # Don't sqrt for now and keep an eye on
         # <https://math.stackexchange.com/q/2856409/36678>.
-        # dist = numpy.sqrt(dist2_sides[r, idx])
-        dist = dist2_sides[r, idx]
+        # dist = numpy.sqrt(dist2)
 
         is_inside = self._is_inside(t, x, idx)
-        dist[is_inside] *= -1
-        return dist
+        dist2[is_inside] *= -1
+        return dist2
 
     def closest_points(self, x):
         """Get the closest points on the polygon.
         """
         x = numpy.array(x)
         assert x.shape[1] == 2
-        t, dist2_polygon, idx = self._all_distances(x)
+        t, _, idx = self._all_distances(x)
 
         pts0 = self.points[idx]
         pts1 = numpy.roll(self.points, -1, axis=0)[idx]
