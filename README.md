@@ -6,8 +6,29 @@
 [![PyPi Version](https://img.shields.io/pypi/v/polypy.svg)](https://pypi.org/project/polypy)
 [![GitHub stars](https://img.shields.io/github/stars/nschloe/polypy.svg?logo=github&label=Stars)](https://github.com/nschloe/polypy)
 
-Some description.
+Lightweight package for working with 2D polygons.
 
+```python
+import polypy
+
+# Create polygon
+poly = polypy.Polygon([[0, 0], [0, 1], [1, 1], [1, 0]])
+
+# Get the squared distance of some points to the polygon
+poly.squared_distance([[0.5, 0.5], [0.1, 2.4]])
+
+# Get the _signed_ squared distance of some points to the polygon
+# (negative if inside the polygon)
+poly.signed_squared_distance([[0.5, 0.5], [0.1, 2.4]])
+
+# Check if the polygon contains the points
+# (with a tolerance; set negative if you want to exclude the boundary)
+poly.contains_points([[0.5, 0.5], [0.1, 2.4]], tol=1.0e-12)
+```
+
+polypy is fully vectorized, so it's pretty fast. (Not quite as fast as
+[`mathplotlib.path.contains_points`](https://matplotlib.org/api/path_api.html#matplotlib.path.Path.contains_points)
+though.)
 
 ### Installation
 

@@ -63,10 +63,10 @@ class Polygon(object):
         _, dist2_sides, _ = self._all_distances(x)
         return dist2_sides
 
-    def _is_inside(self, t, x, idx):
+    def _contains_points(self, t, x, idx):
         r = numpy.arange(idx.shape[0])
 
-        is_inside = numpy.zeros(x.shape[0], dtype=bool)
+        contains_points = numpy.zeros(x.shape[0], dtype=bool)
 
         pts0 = self.points
         pts1 = numpy.roll(self.points, -1, axis=0)
@@ -81,24 +81,24 @@ class Polygon(object):
                 pts1[idx[is_closest_to_side]],
             ]
         )
-        is_inside[is_closest_to_side] = (
+        contains_points[is_closest_to_side] = (
             shoelace(tri) > 0.0
         ) == self.positive_orientation
 
         # If the point is closest to a polygon node, check if the node is convex or
         # concave.
         is_closest_to_pt0 = t[r, idx] <= 0.0
-        is_inside[is_closest_to_pt0] = ~self.is_convex_node[idx[is_closest_to_pt0]]
+        contains_points[is_closest_to_pt0] = ~self.is_convex_node[idx[is_closest_to_pt0]]
 
         is_closest_to_pt1 = 1.0 <= t[r, idx]
         n = self.points.shape[0]
-        is_inside[is_closest_to_pt1] = ~self.is_convex_node[
+        contains_points[is_closest_to_pt1] = ~self.is_convex_node[
             (idx[is_closest_to_pt1] + 1) % n
         ]
 
-        return is_inside
+        return contains_points
 
-    def is_inside(self, x, eps=1.0e-15):
+    def contains_points(self, x, eps=1.0e-15):
         return self.signed_squared_distance(x) < eps
 
     def signed_squared_distance(self, x):
@@ -114,8 +114,8 @@ class Polygon(object):
         # <https://math.stackexchange.com/q/2856409/36678>.
         # dist = numpy.sqrt(dist2)
 
-        is_inside = self._is_inside(t, x, idx)
-        dist2[is_inside] *= -1
+        contains_points = self._contains_points(t, x, idx)
+        dist2[contains_points] *= -1
         return dist2
 
     def closest_points(self, x):

@@ -64,10 +64,10 @@ def test_distance():
 def test_inside():
     poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
 
-    is_inside = poly.is_inside(
+    contains_points = poly.contains_points(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
     )
-    assert numpy.array_equal(is_inside, [True, True, False, False, False, True])
+    assert numpy.array_equal(contains_points, [True, True, False, False, False, True])
     return
 
 
@@ -116,8 +116,8 @@ def test_sharp_angle():
         ]
     )
 
-    is_inside = poly.is_inside([[0.5, 0.4], [0.5, 0.6]])
-    assert numpy.all(is_inside)
+    contains_points = poly.contains_points([[0.5, 0.4], [0.5, 0.6]])
+    assert numpy.all(contains_points)
 
     dist = poly.signed_squared_distance([[0.5, 0.4], [0.5, 0.6]])
     ref = numpy.array([-0.02, -0.02])
