@@ -61,33 +61,50 @@ class Polygon(object):
         _, dist2_polygon, idx = self._all_distances(x)
         return dist2_polygon[numpy.arange(idx.shape[0]), idx]
 
-    def _is_inside(self, x, idx):
+    def _is_inside(self, t, dist2_sides, x, idx):
+        r = numpy.arange(idx.shape[0])
+        is_closest_to_side = (0.0 < t[r, idx]) & (t[r, idx] < 1.0)
+
+        is_inside = numpy.zeros(x.shape[0], dtype=bool)
+
         pts0 = self.points
         pts1 = numpy.roll(self.points, -1, axis=0)
-        tri = numpy.array([x, pts0[idx], pts1[idx]])
-        eps = 1.0e-15
-        return (shoelace(tri) > -eps) == self.positive_orientation
 
-    def is_inside(self, x):
-        x = numpy.array(x)
-        assert x.shape[1] == 2
-        _, _, idx = self._all_distances(x)
-        return self._is_inside(x, idx)
+        tri = numpy.array(
+            [
+                x[is_closest_to_side],
+                pts0[idx[is_closest_to_side]],
+                pts1[idx[is_closest_to_side]],
+            ]
+        )
+        is_inside[is_closest_to_side] = (
+            shoelace(tri) > 0.0
+        ) == self.positive_orientation
+
+        is_closest_to_pt0 = t[r, idx] <= 0.0
+        is_inside[is_closest_to_pt0] = ~self.is_convex_node[idx[is_closest_to_pt0]]
+
+        is_closest_to_pt1 = 1.0 <= t[r, idx]
+        n = self.points.shape[0]
+        is_inside[is_closest_to_pt1] = ~self.is_convex_node[
+            (idx[is_closest_to_pt1] + 1) % n
+        ]
+
+        return is_inside
+
+    def is_inside(self, x, eps=1.0e-15):
+        return self.signed_distance(x) < eps
 
     def signed_distance(self, x):
         """Negative inside the polgon.
         """
         x = numpy.array(x)
         assert x.shape[1] == 2
-        _, dist2_polygon, idx = self._all_distances(x)
-        dist = numpy.sqrt(dist2_polygon[numpy.arange(idx.shape[0]), idx])
+        t, dist2_sides, idx = self._all_distances(x)
+        r = numpy.arange(idx.shape[0])
+        dist = numpy.sqrt(dist2_sides[r, idx])
 
-        # compute sign
-        pts0 = self.points
-        pts1 = numpy.roll(self.points, -1, axis=0)
-        tri = numpy.array([x, pts0[idx], pts1[idx]])
-        eps = 1.0e-15
-        is_inside = (shoelace(tri) > -eps) == self.positive_orientation
+        is_inside = self._is_inside(t, dist2_sides, x, idx)
 
         dist[is_inside] *= -1
         return dist
