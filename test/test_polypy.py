@@ -103,5 +103,27 @@ def test_signed_distance():
     return
 
 
+def test_sharp_angle():
+    poly = polypy.Polygon(
+        [
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 0.45],
+            [0.6, 0.5],
+            [1.0, 0.55],
+            [1.0, 1.0],
+            [0.0, 1.0],
+        ]
+    )
+
+    is_inside = poly.is_inside([[0.5, 0.4], [0.5, 0.6]])
+    assert numpy.all(is_inside)
+
+    dist = poly.signed_distance([[0.5, 0.4], [0.5, 0.6]])
+    ref = numpy.array([-numpy.sqrt(2) / 10, -numpy.sqrt(2) / 10])
+    assert numpy.all(numpy.abs(dist - ref) < 1.0e-12)
+    return
+
+
 if __name__ == "__main__":
-    test_signed_distance()
+    test_sharp_angle()

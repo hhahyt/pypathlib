@@ -127,6 +127,8 @@ class Polygon(object):
         x = numpy.concatenate([self.points[:, 0], [self.points[0, 0]]])
         y = numpy.concatenate([self.points[:, 1], [self.points[0, 1]]])
         plt.plot(x, y, "-")
+
+        plt.axis("square")
         return
 
     def show(self, *args, **kwargs):
