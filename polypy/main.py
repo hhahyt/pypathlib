@@ -88,7 +88,9 @@ class Polygon(object):
         # If the point is closest to a polygon node, check if the node is convex or
         # concave.
         is_closest_to_pt0 = t[r, idx] <= 0.0
-        contains_points[is_closest_to_pt0] = ~self.is_convex_node[idx[is_closest_to_pt0]]
+        contains_points[is_closest_to_pt0] = ~self.is_convex_node[
+            idx[is_closest_to_pt0]
+        ]
 
         is_closest_to_pt1 = 1.0 <= t[r, idx]
         n = self.points.shape[0]

@@ -22,7 +22,7 @@ def test_speed(n=3):
     perfplot.show(
         setup=lambda n: numpy.random.rand(n, 2),
         kernels=[_mpl_poly, _polypy_contains_points],
-        n_range=[2**k for k in range(n)],
+        n_range=[2 ** k for k in range(n)],
         labels=["matplotlib.path.contains_points", "polypy.contains_points"],
         logx=True,
         logy=True,
