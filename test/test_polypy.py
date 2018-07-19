@@ -95,10 +95,10 @@ def test_closest_points():
 def test_signed_distance():
     poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
 
-    dist = poly.signed_distance(
+    dist = poly.signed_squared_distance(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
     )
-    ref = numpy.array([-0.1, -0.4, numpy.sqrt(1.0 / 104.0), 0.1, numpy.sqrt(0.02), 0.0])
+    ref = numpy.array([-0.01, -0.16, 1.0 / 104.0, 0.01, 0.02, 0.0])
     assert numpy.all(numpy.abs(dist - ref) < 1.0e-12)
     return
 
@@ -119,8 +119,8 @@ def test_sharp_angle():
     is_inside = poly.is_inside([[0.5, 0.4], [0.5, 0.6]])
     assert numpy.all(is_inside)
 
-    dist = poly.signed_distance([[0.5, 0.4], [0.5, 0.6]])
-    ref = numpy.array([-numpy.sqrt(2) / 10, -numpy.sqrt(2) / 10])
+    dist = poly.signed_squared_distance([[0.5, 0.4], [0.5, 0.6]])
+    ref = numpy.array([-0.02, -0.02])
     assert numpy.all(numpy.abs(dist - ref) < 1.0e-12)
     return
 

@@ -36,6 +36,7 @@ class Polygon(object):
         #
         # (<x1-x0, x1-x0> <x-x0, x-x0> - <x-x0, x1-x0>**2) / <x1-x0, x1-x0>
         #
+        # <https://math.stackexchange.com/q/2856409/36678>
         dist2_points = numpy.einsum("ijk,ijk->ij", diff, diff)
         dist2_sides = (self.e_dot_e * dist2_points - diff_dot_edge ** 2) / self.e_dot_e
 
@@ -61,15 +62,17 @@ class Polygon(object):
         _, dist2_polygon, idx = self._all_distances(x)
         return dist2_polygon[numpy.arange(idx.shape[0]), idx]
 
-    def _is_inside(self, t, dist2_sides, x, idx):
+    def _is_inside(self, t, x, idx):
         r = numpy.arange(idx.shape[0])
-        is_closest_to_side = (0.0 < t[r, idx]) & (t[r, idx] < 1.0)
 
         is_inside = numpy.zeros(x.shape[0], dtype=bool)
 
         pts0 = self.points
         pts1 = numpy.roll(self.points, -1, axis=0)
 
+        # If the point is closest to a polygon edge, check which which side of the edge
+        # it is on.
+        is_closest_to_side = (0.0 < t[r, idx]) & (t[r, idx] < 1.0)
         tri = numpy.array(
             [
                 x[is_closest_to_side],
@@ -81,6 +84,8 @@ class Polygon(object):
             shoelace(tri) > 0.0
         ) == self.positive_orientation
 
+        # If the point is closest to a polygon node, check if the node is convex or
+        # concave.
         is_closest_to_pt0 = t[r, idx] <= 0.0
         is_inside[is_closest_to_pt0] = ~self.is_convex_node[idx[is_closest_to_pt0]]
 
@@ -93,19 +98,24 @@ class Polygon(object):
         return is_inside
 
     def is_inside(self, x, eps=1.0e-15):
-        return self.signed_distance(x) < eps
+        return self.signed_squared_distance(x) < eps
 
-    def signed_distance(self, x):
+    def signed_squared_distance(self, x):
         """Negative inside the polgon.
         """
         x = numpy.array(x)
         assert x.shape[1] == 2
         t, dist2_sides, idx = self._all_distances(x)
         r = numpy.arange(idx.shape[0])
-        dist = numpy.sqrt(dist2_sides[r, idx])
 
-        is_inside = self._is_inside(t, dist2_sides, x, idx)
+        # Due to round-off error, the squared distances will sometimes be negative in
+        # the order of machine precision. This gives errors when computing the root.
+        # Don't sqrt for now and keep an eye on
+        # <https://math.stackexchange.com/q/2856409/36678>.
+        # dist = numpy.sqrt(dist2_sides[r, idx])
+        dist = dist2_sides[r, idx]
 
+        is_inside = self._is_inside(t, x, idx)
         dist[is_inside] *= -1
         return dist
 
