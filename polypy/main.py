@@ -166,11 +166,6 @@ class Polygon(object):
         return
 
 
-def plot(points):
-    Polygon(points).plot()
-    return
-
-
 def show(points):
     Polygon(points).show()
     return
