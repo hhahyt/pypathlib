@@ -13,6 +13,9 @@ class Polygon(object):
         self.edges = numpy.roll(points, -1, axis=0) - points
         self.e_dot_e = numpy.einsum("ij,ij->i", self.edges, self.edges)
 
+        assert numpy.all(self.e_dot_e > 1.0e-12), \
+            "Edge of 0 length are not permitted (edge lengths: {})".format(numpy.sqrt(self.e_dot_e))
+
         self.area = 0.5 * shoelace(self.points)
         self.positive_orientation = self.area > 0
         if self.area < 0:
@@ -149,12 +152,12 @@ class Polygon(object):
             )
         return self._is_convex_node
 
-    def plot(self):
+    def plot(self, color="#1f77b4"):
         import matplotlib.pyplot as plt
 
         x = numpy.concatenate([self.points[:, 0], [self.points[0, 0]]])
         y = numpy.concatenate([self.points[:, 1], [self.points[0, 1]]])
-        plt.plot(x, y, "-")
+        plt.plot(x, y, "-", color=color)
 
         plt.axis("square")
         return
