@@ -64,8 +64,8 @@ class Path(object):
             idx = numpy.argmin(dist2_sides, axis=1)
             dist2_sides = dist2_sides[numpy.arange(idx.shape[0]), idx]
         else:
-            dist2_sides = dist2_points.T
-            idx = numpy.argmin(dist2_sides, axis=1)
+            idx = numpy.zeros(dist2_points.shape[0], dtype=int)
+            dist2_sides = dist2_points[:, 0]
 
         return t, dist2_sides, idx
 

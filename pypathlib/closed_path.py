@@ -75,7 +75,7 @@ class ClosedPath(Path):
         ]
 
         is_closest_to_pt1 = 1.0 <= t[r, idx]
-        n = self.points.shape[0]
+        n = self.points.shape[0] - 1
         contains_points[is_closest_to_pt1] = ~self.is_convex_node[
             (idx[is_closest_to_pt1] + 1) % n
         ]
