@@ -34,7 +34,9 @@ class Path(object):
         # (<x1-x0, x1-x0> <x-x0, x-x0> - <x-x0, x1-x0>**2) / <x1-x0, x1-x0>
         #
         dist2_points = numpy.einsum("ijk,ijk->ij", diff, diff)
-        dist2_sides = (self.e_dot_e * dist2_points[:, :-1] - diff_dot_edge ** 2) / self.e_dot_e
+        dist2_sides = (
+            self.e_dot_e * dist2_points[:, :-1] - diff_dot_edge ** 2
+        ) / self.e_dot_e
         # Wipe out small negative values
         dist2_sides = numpy.maximum(dist2_sides, numpy.zeros(dist2_sides.shape))
 

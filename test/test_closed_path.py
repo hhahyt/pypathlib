@@ -31,7 +31,9 @@ def test_orientation():
 
 
 def test_concave():
-    path = pypathlib.ClosedPath([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.1, 1.1], [0.1, 1.0]])
+    path = pypathlib.ClosedPath(
+        [[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.1, 1.1], [0.1, 1.0]]
+    )
 
     ref = 0.965
     assert abs(path.area - ref) < 1.0e-12 * ref
@@ -41,7 +43,9 @@ def test_concave():
 
 
 def test_concave_counterclock():
-    path = pypathlib.ClosedPath([[0.1, 1.0], [1.1, 1.1], [0.9, 0.5], [1.0, 0.0], [0.0, 0.0]])
+    path = pypathlib.ClosedPath(
+        [[0.1, 1.0], [1.1, 1.1], [0.9, 0.5], [1.0, 0.0], [0.0, 0.0]]
+    )
 
     ref = 0.965
     assert abs(path.area - ref) < 1.0e-12 * ref
@@ -51,7 +55,9 @@ def test_concave_counterclock():
 
 
 def test_squared_distance():
-    path = pypathlib.ClosedPath([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
+    path = pypathlib.ClosedPath(
+        [[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]]
+    )
 
     dist = path.squared_distance(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
@@ -62,7 +68,9 @@ def test_squared_distance():
 
 
 def test_distance():
-    path = pypathlib.ClosedPath([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
+    path = pypathlib.ClosedPath(
+        [[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]]
+    )
 
     dist = path.distance(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
@@ -73,7 +81,9 @@ def test_distance():
 
 
 def test_signed_distance():
-    path = pypathlib.ClosedPath([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
+    path = pypathlib.ClosedPath(
+        [[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]]
+    )
 
     dist = path.signed_distance(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
@@ -87,7 +97,9 @@ def test_signed_distance():
 
 
 def test_inside():
-    path = pypathlib.ClosedPath([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
+    path = pypathlib.ClosedPath(
+        [[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]]
+    )
 
     contains_points = path.contains_points(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
@@ -97,7 +109,9 @@ def test_inside():
 
 
 def test_closest_points():
-    path = pypathlib.ClosedPath([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
+    path = pypathlib.ClosedPath(
+        [[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]]
+    )
 
     closest_points = path.closest_points(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
@@ -118,7 +132,9 @@ def test_closest_points():
 
 
 def test_signed_squared_distance():
-    path = pypathlib.ClosedPath([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
+    path = pypathlib.ClosedPath(
+        [[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]]
+    )
 
     dist = path.signed_squared_distance(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]

@@ -90,11 +90,7 @@ class ClosedPath(Path):
         points = self.points[:-1]
         if self._is_convex_node is None:
             tri = numpy.array(
-                [
-                    numpy.roll(points, +1, axis=0),
-                    points,
-                    numpy.roll(points, -1, axis=0),
-                ]
+                [numpy.roll(points, +1, axis=0), points, numpy.roll(points, -1, axis=0)]
             )
             self._is_convex_node = numpy.equal(
                 shoelace(tri) >= 0, self.positive_orientation
