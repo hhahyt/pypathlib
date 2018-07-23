@@ -1,4 +1,4 @@
-VERSION=$(shell python3 -c "import polypy; print(polypy.__version__)")
+VERSION=$(shell python3 -c "import pypathlib; print(pypathlib.__version__)")
 
 default:
 	@echo "\"make publish\"?"
@@ -25,8 +25,8 @@ clean:
 	@rm -rf *.egg-info/ build/ dist/ MANIFEST .pytest_cache/
 
 black:
-	black setup.py polypy/ test/*.py
+	black setup.py pypathlib/ test/*.py
 
 lint:
-	black --check setup.py polypy/ test/*.py
-	flake8 setup.py polypy/ test/*.py
+	black --check setup.py pypathlib/ test/*.py
+	flake8 setup.py pypathlib/ test/*.py
