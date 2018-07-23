@@ -1,59 +1,65 @@
 # -*- coding: utf-8 -*-
 #
 import numpy
-import polypy
+import pypathlib
 
 
 def test_show():
-    poly = numpy.array([[0.0, 0.0], [1.0, 0.0], [1.1, 1.1], [0.1, 1.0]])
-    polypy.show(poly)
+    path = pypathlib.ClosedPath([[0.0, 0.0], [1.0, 0.0], [1.1, 1.1], [0.1, 1.0]])
+    path.show()
     return
 
 
 def test_convex():
-    poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [1.1, 1.1], [0.1, 1.0]])
+    path = pypathlib.ClosedPath([[0.0, 0.0], [1.0, 0.0], [1.1, 1.1], [0.1, 1.0]])
 
     ref = 1.045
-    assert abs(poly.area - ref) < 1.0e-12 * ref
-    assert poly.positive_orientation
-    assert all(poly.is_convex_node)
+    assert abs(path.area - ref) < 1.0e-12 * ref
+    assert path.positive_orientation
+    assert all(path.is_convex_node)
     return
 
 
 def test_orientation():
-    poly = polypy.Polygon([[0.1, 1.0], [1.1, 1.1], [1.0, 0.0], [0.0, 0.0]])
+    path = pypathlib.ClosedPath([[0.1, 1.0], [1.1, 1.1], [1.0, 0.0], [0.0, 0.0]])
 
     ref = 1.045
-    assert abs(poly.area - ref) < 1.0e-12 * ref
-    assert not poly.positive_orientation
-    assert all(poly.is_convex_node)
+    assert abs(path.area - ref) < 1.0e-12 * ref
+    assert not path.positive_orientation
+    assert all(path.is_convex_node)
     return
 
 
 def test_concave():
-    poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.1, 1.1], [0.1, 1.0]])
+    path = pypathlib.ClosedPath(
+        [[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.1, 1.1], [0.1, 1.0]]
+    )
 
     ref = 0.965
-    assert abs(poly.area - ref) < 1.0e-12 * ref
-    assert poly.positive_orientation
-    assert numpy.array_equal(poly.is_convex_node, [True, True, False, True, True])
+    assert abs(path.area - ref) < 1.0e-12 * ref
+    assert path.positive_orientation
+    assert numpy.array_equal(path.is_convex_node, [True, True, False, True, True])
     return
 
 
 def test_concave_counterclock():
-    poly = polypy.Polygon([[0.1, 1.0], [1.1, 1.1], [0.9, 0.5], [1.0, 0.0], [0.0, 0.0]])
+    path = pypathlib.ClosedPath(
+        [[0.1, 1.0], [1.1, 1.1], [0.9, 0.5], [1.0, 0.0], [0.0, 0.0]]
+    )
 
     ref = 0.965
-    assert abs(poly.area - ref) < 1.0e-12 * ref
-    assert not poly.positive_orientation
-    assert numpy.array_equal(poly.is_convex_node, [True, True, False, True, True])
+    assert abs(path.area - ref) < 1.0e-12 * ref
+    assert not path.positive_orientation
+    assert numpy.array_equal(path.is_convex_node, [True, True, False, True, True])
     return
 
 
 def test_squared_distance():
-    poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
+    path = pypathlib.ClosedPath(
+        [[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]]
+    )
 
-    dist = poly.squared_distance(
+    dist = path.squared_distance(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
     )
     ref = numpy.array([0.01, 0.16, 1.0 / 104.0, 0.01, 0.02, 0.0])
@@ -62,9 +68,11 @@ def test_squared_distance():
 
 
 def test_distance():
-    poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
+    path = pypathlib.ClosedPath(
+        [[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]]
+    )
 
-    dist = poly.distance(
+    dist = path.distance(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
     )
     ref = numpy.array([0.1, 0.4, numpy.sqrt(1.0 / 104.0), 0.1, numpy.sqrt(2) / 10, 0.0])
@@ -73,9 +81,11 @@ def test_distance():
 
 
 def test_signed_distance():
-    poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
+    path = pypathlib.ClosedPath(
+        [[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]]
+    )
 
-    dist = poly.signed_distance(
+    dist = path.signed_distance(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
     )
     print(dist)
@@ -87,9 +97,11 @@ def test_signed_distance():
 
 
 def test_inside():
-    poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
+    path = pypathlib.ClosedPath(
+        [[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]]
+    )
 
-    contains_points = poly.contains_points(
+    contains_points = path.contains_points(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
     )
     assert numpy.array_equal(contains_points, [True, True, False, False, False, True])
@@ -97,9 +109,11 @@ def test_inside():
 
 
 def test_closest_points():
-    poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
+    path = pypathlib.ClosedPath(
+        [[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]]
+    )
 
-    closest_points = poly.closest_points(
+    closest_points = path.closest_points(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
     )
 
@@ -118,9 +132,11 @@ def test_closest_points():
 
 
 def test_signed_squared_distance():
-    poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
+    path = pypathlib.ClosedPath(
+        [[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]]
+    )
 
-    dist = poly.signed_squared_distance(
+    dist = path.signed_squared_distance(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
     )
     ref = numpy.array([-0.01, -0.16, 1.0 / 104.0, 0.01, 0.02, 0.0])
@@ -129,7 +145,7 @@ def test_signed_squared_distance():
 
 
 def test_sharp_angle():
-    poly = polypy.Polygon(
+    path = pypathlib.ClosedPath(
         [
             [0.0, 0.0],
             [1.0, 0.0],
@@ -141,18 +157,18 @@ def test_sharp_angle():
         ]
     )
 
-    contains_points = poly.contains_points([[0.5, 0.4], [0.5, 0.6]])
+    contains_points = path.contains_points([[0.5, 0.4], [0.5, 0.6]])
     assert numpy.all(contains_points)
 
-    dist = poly.signed_squared_distance([[0.5, 0.4], [0.5, 0.6]])
+    dist = path.signed_squared_distance([[0.5, 0.4], [0.5, 0.6]])
     ref = numpy.array([-0.02, -0.02])
     assert numpy.all(numpy.abs(dist - ref) < 1.0e-12)
     return
 
 
 # def test_two_points():
-#     poly = polypy.Polygon([[-0.5, 1.0], [+0.5, 1.0]])
-#     contains_points = poly.contains_points([[0.0, 0.0], [0.0, 2.0]])
+#     path = pypathlib.ClosedPath([[-0.5, 1.0], [+0.5, 1.0]])
+#     contains_points = path.contains_points([[0.0, 0.0], [0.0, 2.0]])
 #     assert numpy.array_equal(contains_points, [False, False])
 #     return
 
