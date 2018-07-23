@@ -39,9 +39,22 @@ class Polygon(object):
         #
         # (<x1-x0, x1-x0> <x-x0, x-x0> - <x-x0, x1-x0>**2) / <x1-x0, x1-x0>
         #
-        # <https://math.stackexchange.com/q/2856409/36678>
         dist2_points = numpy.einsum("ijk,ijk->ij", diff, diff)
         dist2_sides = (self.e_dot_e * dist2_points - diff_dot_edge ** 2) / self.e_dot_e
+        # Wipe out small negative values
+        dist2_sides = numpy.maximum(dist2_sides, numpy.zeros(dist2_sides.shape))
+
+        # The denominator can be written as
+        #
+        #   (<x1-x0, x1-x0> <x-x0, x-x0> - <x-x0, x1-x0>**2)
+        #   = 1/2 * sum ((x1-x0) (x-x0).T - (x-x0) (x1-x0).T)**2,
+        #
+        # (Lagrange' identity, <https://en.wikipedia.org/wiki/Lagrange%27s_identity>).
+        #
+        # <https://math.stackexchange.com/q/2856409/36678>
+        # a = numpy.einsum("jk,ijl->ijkl", self.edges, diff)
+        # b = a - numpy.moveaxis(a, 2, 3)
+        # dist2_sides = 0.5 * numpy.einsum("ijkl,ijkl->ij", b, b)
 
         # Get the squared distance to the polygon. By default equals the distance to the
         # line, unless t < 0 (then the squared distance to x0), unless t > 1 (then the
@@ -65,6 +78,32 @@ class Polygon(object):
         assert x.shape[1] == 2
         _, dist2_sides, _ = self._all_distances(x)
         return dist2_sides
+
+    def distance(self, x):
+        """Get the squared distance of all points x to the polygon `poly`.
+        """
+        return numpy.sqrt(self.squared_distance(x))
+
+    def signed_squared_distance(self, x):
+        """Negative inside the polgon.
+        """
+        x = numpy.array(x)
+        assert x.shape[1] == 2
+        t, dist2, idx = self._all_distances(x)
+        contains_points = self._contains_points(t, x, idx)
+        dist2[contains_points] *= -1
+        return dist2
+
+    def signed_distance(self, x):
+        """Negative inside the polgon.
+        """
+        x = numpy.array(x)
+        assert x.shape[1] == 2
+        t, dist2, idx = self._all_distances(x)
+        dist = numpy.sqrt(dist2)
+        contains_points = self._contains_points(t, x, idx)
+        dist[contains_points] *= -1
+        return dist
 
     def _contains_points(self, t, x, idx):
         r = numpy.arange(idx.shape[0])
@@ -105,23 +144,6 @@ class Polygon(object):
 
     def contains_points(self, x, tol=1.0e-15):
         return self.signed_squared_distance(x) < tol
-
-    def signed_squared_distance(self, x):
-        """Negative inside the polgon.
-        """
-        x = numpy.array(x)
-        assert x.shape[1] == 2
-        t, dist2, idx = self._all_distances(x)
-
-        # Due to round-off error, the squared distances will sometimes be negative in
-        # the order of machine precision. This gives errors when computing the root.
-        # Don't sqrt for now and keep an eye on
-        # <https://math.stackexchange.com/q/2856409/36678>.
-        # dist = numpy.sqrt(dist2)
-
-        contains_points = self._contains_points(t, x, idx)
-        dist2[contains_points] *= -1
-        return dist2
 
     def closest_points(self, x):
         """Get the closest points on the polygon.
