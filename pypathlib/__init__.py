@@ -5,7 +5,7 @@ from __future__ import print_function
 from .__about__ import __author__, __email__, __license__, __version__, __status__
 
 from .path import Path
-from .polygon import Polygon
+from .closed_path import ClosedPath
 
 __all__ = [
     "__author__",
@@ -13,7 +13,7 @@ __all__ = [
     "__license__",
     "__version__",
     "__status__",
-    "Polygon",
+    "ClosedPath",
     "Path",
 ]
 

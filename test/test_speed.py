@@ -9,7 +9,7 @@ import perfplot
 def test_speed(n=3):
     poly_pts = [[0, 0], [0, 1], [1, 1], [1, 0]]
     poly0 = path.Path(poly_pts)
-    poly1 = pypathlib.Polygon(poly_pts)
+    poly1 = pypathlib.ClosedPath(poly_pts)
 
     def _mpl_poly(pts):
         return poly0.contains_points(pts)
@@ -33,7 +33,7 @@ def test_speed(n=3):
 
 def benchmark():
     poly_pts = [[0, 0], [0, 1], [1, 1], [1, 0]]
-    poly1 = pypathlib.Polygon(poly_pts)
+    poly1 = pypathlib.ClosedPath(poly_pts)
     pts = numpy.random.rand(5000000, 2)
     poly1.contains_points(pts)
     return

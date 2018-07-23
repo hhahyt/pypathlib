@@ -87,12 +87,13 @@ class ClosedPath(Path):
 
     @property
     def is_convex_node(self):
+        points = self.points[:-1]
         if self._is_convex_node is None:
             tri = numpy.array(
                 [
-                    numpy.roll(self.points, +1, axis=0),
-                    self.points,
-                    numpy.roll(self.points, -1, axis=0),
+                    numpy.roll(points, +1, axis=0),
+                    points,
+                    numpy.roll(points, -1, axis=0),
                 ]
             )
             self._is_convex_node = numpy.equal(
