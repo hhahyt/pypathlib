@@ -6,24 +6,24 @@
 [![PyPi Version](https://img.shields.io/pypi/v/pypathlib.svg)](https://pypi.org/project/pypathlib)
 [![GitHub stars](https://img.shields.io/github/stars/nschloe/pypathlib.svg?logo=github&label=Stars)](https://github.com/nschloe/pypathlib)
 
-Lightweight package for working with 2D polygons.
+Lightweight package for working with 2D paths/polygons.
 
 ```python
 import pypathlib
 
-# Create polygon
-poly = pypathlib.Polygon([[0, 0], [0, 1], [1, 1], [1, 0]])
+# Create path
+path = pypathlib.ClosedPath([[0, 0], [0, 1], [1, 1], [1, 0]])
 
-# Get the squared distance of some points to the polygon
-poly.squared_distance([[0.5, 0.5], [0.1, 2.4]])
+# Get the squared distance of some points to the path
+path.squared_distance([[0.5, 0.5], [0.1, 2.4]])
 
-# Get the _signed_ squared distance of some points to the polygon
-# (negative if inside the polygon)
-poly.signed_squared_distance([[0.5, 0.5], [0.1, 2.4]])
+# Get the _signed_ squared distance of some points to the path
+# (negative if inside the path)
+path.signed_squared_distance([[0.5, 0.5], [0.1, 2.4]])
 
-# Check if the polygon contains the points
+# Check if the path contains the points
 # (with a tolerance; set negative if you want to exclude the boundary)
-poly.contains_points([[0.5, 0.5], [0.1, 2.4]], tol=1.0e-12)
+path.contains_points([[0.5, 0.5], [0.1, 2.4]], tol=1.0e-12)
 ```
 
 pypathlib is fully vectorized, so it's pretty fast. (Not quite as fast as
