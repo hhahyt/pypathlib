@@ -50,13 +50,38 @@ def test_concave_counterclock():
     return
 
 
-def test_distance():
+def test_squared_distance():
     poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
 
     dist = poly.squared_distance(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
     )
     ref = numpy.array([0.01, 0.16, 1.0 / 104.0, 0.01, 0.02, 0.0])
+    assert numpy.all(numpy.abs(dist - ref) < 1.0e-12)
+    return
+
+
+def test_distance():
+    poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
+
+    dist = poly.distance(
+        [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
+    )
+    ref = numpy.array([0.1, 0.4, numpy.sqrt(1.0 / 104.0), 0.1, numpy.sqrt(2) / 10, 0.0])
+    assert numpy.all(numpy.abs(dist - ref) < 1.0e-12)
+    return
+
+
+def test_signed_distance():
+    poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
+
+    dist = poly.signed_distance(
+        [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
+    )
+    print(dist)
+    ref = numpy.array(
+        [-0.1, -0.4, numpy.sqrt(1.0 / 104.0), 0.1, numpy.sqrt(2) / 10, 0.0]
+    )
     assert numpy.all(numpy.abs(dist - ref) < 1.0e-12)
     return
 
@@ -92,7 +117,7 @@ def test_closest_points():
     return
 
 
-def test_signed_distance():
+def test_signed_squared_distance():
     poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
 
     dist = poly.signed_squared_distance(
@@ -123,6 +148,13 @@ def test_sharp_angle():
     ref = numpy.array([-0.02, -0.02])
     assert numpy.all(numpy.abs(dist - ref) < 1.0e-12)
     return
+
+
+# def test_two_points():
+#     poly = polypy.Polygon([[-0.5, 1.0], [+0.5, 1.0]])
+#     contains_points = poly.contains_points([[0.0, 0.0], [0.0, 2.0]])
+#     assert numpy.array_equal(contains_points, [False, False])
+#     return
 
 
 if __name__ == "__main__":

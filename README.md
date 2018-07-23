@@ -30,6 +30,13 @@ polypy is fully vectorized, so it's pretty fast. (Not quite as fast as
 [`mathplotlib.path.contains_points`](https://matplotlib.org/api/path_api.html#matplotlib.path.Path.contains_points)
 though.)
 
+
+### Relevant publications
+
+ * [S.W. Sloan, _A point-in-polygon program_. Adv. Eng. Software, Vol 7, No. 1, pp.
+   45-47, 1985, 10.1016/0141-1195(85)90094-4](https://doi.org/10.1016/0141-1195(85)90094-4).
+
+
 ### Installation
 
 polypy is [available from the Python Package
