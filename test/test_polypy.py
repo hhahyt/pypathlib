@@ -150,5 +150,12 @@ def test_sharp_angle():
     return
 
 
+# def test_two_points():
+#     poly = polypy.Polygon([[-0.5, 1.0], [+0.5, 1.0]])
+#     contains_points = poly.contains_points([[0.0, 0.0], [0.0, 2.0]])
+#     assert numpy.array_equal(contains_points, [False, False])
+#     return
+
+
 if __name__ == "__main__":
     test_sharp_angle()

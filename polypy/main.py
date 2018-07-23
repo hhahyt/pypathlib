@@ -8,6 +8,7 @@ from .helpers import shoelace
 class Polygon(object):
     def __init__(self, points):
         self.points = numpy.array(points)
+        assert self.points.shape[0] > 2
         assert self.points.shape[1] == 2
 
         self.edges = numpy.roll(points, -1, axis=0) - points
@@ -20,7 +21,7 @@ class Polygon(object):
         )
 
         self.area = 0.5 * shoelace(self.points)
-        self.positive_orientation = self.area > 0
+        self.positive_orientation = self.area >= 0
         if self.area < 0:
             self.area = -self.area
 
@@ -126,6 +127,7 @@ class Polygon(object):
                 pts1[idx[is_closest_to_side]],
             ]
         )
+
         contains_points[is_closest_to_side] = (
             shoelace(tri) > 0.0
         ) == self.positive_orientation
@@ -146,7 +148,7 @@ class Polygon(object):
         return contains_points
 
     def contains_points(self, x, tol=1.0e-15):
-        return self.signed_squared_distance(x) < tol
+        return self.signed_distance(x) < tol
 
     def closest_points(self, x):
         """Get the closest points on the polygon.
@@ -173,7 +175,7 @@ class Polygon(object):
                 ]
             )
             self._is_convex_node = numpy.equal(
-                shoelace(tri) > 0, self.positive_orientation
+                shoelace(tri) >= 0, self.positive_orientation
             )
         return self._is_convex_node
 
