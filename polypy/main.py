@@ -13,8 +13,11 @@ class Polygon(object):
         self.edges = numpy.roll(points, -1, axis=0) - points
         self.e_dot_e = numpy.einsum("ij,ij->i", self.edges, self.edges)
 
-        assert numpy.all(self.e_dot_e > 1.0e-12), \
-            "Edge of 0 length are not permitted (edge lengths: {})".format(numpy.sqrt(self.e_dot_e))
+        assert numpy.all(
+            self.e_dot_e > 1.0e-12
+        ), "Edge of 0 length are not permitted (edge lengths: {})".format(
+            numpy.sqrt(self.e_dot_e)
+        )
 
         self.area = 0.5 * shoelace(self.points)
         self.positive_orientation = self.area > 0

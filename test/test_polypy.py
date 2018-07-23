@@ -78,7 +78,10 @@ def test_signed_distance():
     dist = poly.signed_distance(
         [[0.2, 0.1], [0.5, 0.5], [1.0, 0.5], [0.0, 1.1], [-0.1, 1.1], [1.0, 1.0]]
     )
-    ref = numpy.array([0.1, 0.4, numpy.sqrt(1.0 / 104.0), 0.1, numpy.sqrt(2) / 10, 0.0])
+    print(dist)
+    ref = numpy.array(
+        [-0.1, -0.4, numpy.sqrt(1.0 / 104.0), 0.1, numpy.sqrt(2) / 10, 0.0]
+    )
     assert numpy.all(numpy.abs(dist - ref) < 1.0e-12)
     return
 
@@ -114,7 +117,7 @@ def test_closest_points():
     return
 
 
-def test_signed_distance():
+def test_signed_squared_distance():
     poly = polypy.Polygon([[0.0, 0.0], [1.0, 0.0], [0.9, 0.5], [1.0, 1.0], [0.0, 1.0]])
 
     dist = poly.signed_squared_distance(
